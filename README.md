@@ -4,11 +4,11 @@
 
 ### spinner
 
-***describe:*** spin 10,000 times for flag
+**_describe:_** spin 10,000 times for flag
 
-![Untitled](Angstrom%20CTF%20Write%20Up%20f6aab9c53cd5465eb4a307e1cb9da5e7/Untitled.png)
+![spinner1](Angstrom%20CTF%20Write%20Up/spinner1.png)
 
-***source:***
+**_source:_**
 
 ```jsx
 <script>
@@ -80,66 +80,66 @@
 </script>
 ```
 
-***script:***
+**_payload:_**
 
 ```jsx
-(function() {
-    const moveSpinner = () => {
-        const spinner = document.querySelector('.spinner');
-        let angle = 0;
-        const increment = 360; // Số độ mỗi lần xoay, tăng từ 10 lên 30
+(function () {
+  const moveSpinner = () => {
+    const spinner = document.querySelector(".spinner");
+    let angle = 0;
+    const increment = 360; // Số độ mỗi lần xoay, tăng từ 10 lên 30
 
-        const interval = setInterval(() => {
-            if (state.total >= 10_000 * 360) {
-                clearInterval(interval);
-                message(); // Hiển thị thông báo khi đủ vòng
-                return;
-            }
+    const interval = setInterval(() => {
+      if (state.total >= 10_000 * 360) {
+        clearInterval(interval);
+        message(); // Hiển thị thông báo khi đủ vòng
+        return;
+      }
 
-            angle += increment;
-            angle = angle % 360; // Giữ giá trị góc trong khoảng 0-359
+      angle += increment;
+      angle = angle % 360; // Giữ giá trị góc trong khoảng 0-359
 
-            const change = increment;
-            state.total += change;
-            state.value = angle;
+      const change = increment;
+      state.total += change;
+      state.value = angle;
 
-            draw(); // Vẽ lại spinner với góc mới
-            message(); // Cập nhật thông điệp hiển thị
-        }, 0.01); // Thời gian giữa các lần xoay, giảm từ 1ms xuống 0.1ms
-    }
+      draw(); // Vẽ lại spinner với góc mới
+      message(); // Cập nhật thông điệp hiển thị
+    }, 0.01); // Thời gian giữa các lần xoay, giảm từ 1ms xuống 0.1ms
+  };
 
-    // Gọi hàm moveSpinner để bắt đầu quá trình tự động xo
-    moveSpinner();
+  // Gọi hàm moveSpinner để bắt đầu quá trình tự động xo
+  moveSpinner();
 })();
 ```
 
-![Untitled](Angstrom%20CTF%20Write%20Up%20f6aab9c53cd5465eb4a307e1cb9da5e7/Untitled%201.png)
+![spinner2](Angstrom%20CTF%20Write%20Up/spinner2.png)
 
 flag = actf{b152d497db04fcb1fdf6f3bb64522d5e}
 
 ### markdown
 
-![Untitled](Angstrom%20CTF%20Write%20Up%20f6aab9c53cd5465eb4a307e1cb9da5e7/Untitled%202.png)
+![markdown1](Angstrom%20CTF%20Write%20Up/markdown1.png)
 
-***source:***
+**_source:_**
 
 ```jsx
-const crypto = require('crypto')
+const crypto = require("crypto");
 
-const express = require('express')
-const app = express()
+const express = require("express");
+const app = express();
 
-const posts = new Map()
+const posts = new Map();
 
-app.use(express.urlencoded({ extended: false }))
+app.use(express.urlencoded({ extended: false }));
 
-app.get('/', (_req, res) => {
-    const placeholder = [
-        '# Note title',
-        'Content of the note. You can use *italics*!',
-    ].join('\n')
+app.get("/", (_req, res) => {
+  const placeholder = [
+    "# Note title",
+    "Content of the note. You can use *italics*!",
+  ].join("\n");
 
-    res.type('text/html').end(`
+  res.type("text/html").end(`
         <link rel="stylesheet" href="/style.css">
         <div class="content">
             <h1>Pastebin</h1>
@@ -148,24 +148,23 @@ app.get('/', (_req, res) => {
                 <button type="submit">Create</button>
             </form>
         </div>
-    `)
-})
+    `);
+});
 
-app.get('/flag', (req, res) => {
-    const cookie = req.headers.cookie ?? ''
-    res.type('text/plain').end(
-        cookie.includes(process.env.TOKEN)
-        ? process.env.FLAG
-        : 'no flag for you'
-    )
-})
+app.get("/flag", (req, res) => {
+  const cookie = req.headers.cookie ?? "";
+  res
+    .type("text/plain")
+    .end(
+      cookie.includes(process.env.TOKEN) ? process.env.FLAG : "no flag for you"
+    );
+});
 
-app.get('/view/:id', (_req, res) => {
-    const marked = (
-        'https://cdnjs.cloudflare.com/ajax/libs/marked/4.2.2/marked.min.js'
-    )
+app.get("/view/:id", (_req, res) => {
+  const marked =
+    "https://cdnjs.cloudflare.com/ajax/libs/marked/4.2.2/marked.min.js";
 
-    res.type('text/html').end(`
+  res.type("text/html").end(`
         <link rel="stylesheet" href="/style.css">
         <div class="content">
         </div>
@@ -180,24 +179,24 @@ app.get('/view/:id', (_req, res) => {
                 content.innerHTML = marked.parse(text)
             })()
         </script>
-    `)
-})
+    `);
+});
 
-app.post('/create', (req, res) => {
-    const data = req.body.content ?? ''
-    const id = crypto.randomBytes(8).toString('hex')
-    posts.set(id, data)
-    res.redirect(`/view/${id}`)
-})
+app.post("/create", (req, res) => {
+  const data = req.body.content ?? "";
+  const id = crypto.randomBytes(8).toString("hex");
+  posts.set(id, data);
+  res.redirect(`/view/${id}`);
+});
 
-app.get('/content/:id', (req, res) => {
-    const id = req.params.id
-    const data = posts.get(id) ?? ''
-    res.type('text/plain').end(data)
-})
+app.get("/content/:id", (req, res) => {
+  const id = req.params.id;
+  const data = posts.get(id) ?? "";
+  res.type("text/plain").end(data);
+});
 
-app.get('/style.css', (_req, res) => {
-    res.type('text/css').end(`
+app.get("/style.css", (_req, res) => {
+  res.type("text/css").end(`
         * {
           font-family: system-ui, -apple-system, BlinkMacSystemFont,
             'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
@@ -234,13 +233,13 @@ app.get('/style.css', (_req, res) => {
           margin-bottom: 16px;
         }
 
-    `)
-})
+    `);
+});
 
-app.listen(3000)
+app.listen(3000);
 ```
 
-***script:***
+**_payload:_**
 
 ```jsx
 # Note title
@@ -249,19 +248,19 @@ app.listen(3000)
 
 send to admin (I use webhook to catch the request)
 
-![Untitled](Angstrom%20CTF%20Write%20Up%20f6aab9c53cd5465eb4a307e1cb9da5e7/Untitled%203.png)
+![markdown2](Angstrom%20CTF%20Write%20Up/markdown2.png)
 
 get the cookies token
 
-![Untitled](Angstrom%20CTF%20Write%20Up%20f6aab9c53cd5465eb4a307e1cb9da5e7/Untitled%204.png)
+![markdown3](Angstrom%20CTF%20Write%20Up/markdown3.png)
 
 flag = actf{b534186fa8b28780b1fcd1e95e2a2e2c}
 
 ### winds
 
-![Untitled](Angstrom%20CTF%20Write%20Up%20f6aab9c53cd5465eb4a307e1cb9da5e7/Untitled%205.png)
+![winds1](Angstrom%20CTF%20Write%20Up/winds1.png)
 
-***source:***
+**_source:_**
 
 ```jsx
 import random
@@ -327,7 +326,7 @@ def style():
     '''
 ```
 
-***script:***
+**_payload:_**
 
 ```jsx
 import random
@@ -344,6 +343,6 @@ for index, value in enumerate(jumbled):
 print("".join(new_text))
 ```
 
-![Untitled](Angstrom%20CTF%20Write%20Up%20f6aab9c53cd5465eb4a307e1cb9da5e7/Untitled%206.png)
+![winds2](Angstrom%20CTF%20Write%20Up/winds2.png)
 
 flag = actf{2cb542c944f737b85c6bb9183b7f2ea8}
